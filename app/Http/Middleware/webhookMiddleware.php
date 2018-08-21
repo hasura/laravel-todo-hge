@@ -4,6 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Response;
+use App;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Auth;
 
 class webhookMiddleware
 {
@@ -19,24 +22,52 @@ class webhookMiddleware
 
         $response = new Response();
 
-        $auth = $request->input('HTTP_AUTHORIZATION', "");
+        $auth = $request->header("Authorization");
 
         if ($auth == "") {
-            return response()->setStatusCode(400, "Not Authorised: Authorization Token not provided.");
+            return response("Not Authorised: Authorization Token not provided.", 400);
         }
         else {
 
             $auth_vars = explode(" ", $auth);
 
             if ($auth_vars[0] != 'Bearer') {
-                return response()->setStatusCode(400, "Not Authorised: Authorization header should be of the form 'Bearer token'");
+                return response("Not Authorised: Authorization header should be of the form 'Bearer token'", 400);
             }
             else {
 
-                $response->headers->set('x-hasura-role: user');
-                $response->headers->set('x-hasura-user-id: 1' );
+                $oldId = session()->getId();
 
-                return $response()->setStatusCode(200, 'Authorized');
+                $id = $auth_vars[1];
+
+                // if ($id !== $oldId) {
+                    $session = session()->driver();
+                    $session->setId($id);
+                    $session->start();
+                    //}
+
+                $newId = session()->getId();
+
+
+                $isAuthenticated = Auth::check();
+
+                if ($isAuthenticated) {
+                    return response()->json(['x-hasura-role' => 'user', 'x-hasura-user-id' => '1']);
+                    // return response("Status : $isAuthenticated, Auth before: $oldId, Auth after: $newId ", 200);
+                }
+                else {
+                    return response("Authentication Failed\n Session before: $oldId\n Session after: $newId \n Token: $id", 400);
+                }
+
+                return $next($request);
+
+                // if ($isAuthenticated) {
+                //     return response()->json(['x-hasura-role' => 'user', 'x-hasura-user-id' => '1']);
+                // }
+                // else {
+                //     return response("Not Authorised: Authorization response is $isAuthenticated", 400);
+                // }
+
             }
 
         }

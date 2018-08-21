@@ -2,6 +2,7 @@
 
 @section('content')
     <h1>User Profile</h1>
+<h4>Session: {{ session()->getId() }}</h4>
     <hr/>
 
     {!! Form::model($user, ['method' => 'put', 'route' => ['user.update', $user->id], 'class' => 'form-horizontal', 'role' => 'form']) !!}

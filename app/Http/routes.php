@@ -13,4 +13,4 @@ Route::resource('user', 'UserController', ['except' => ['index', 'show', 'destro
 
 // Todo Resources
 Route::resource('todo', 'TodoController', ['middleware' => 'auth']);
-//Route::get('/hge_webhook', 'WebhookController', ['middleware' => 'webhookMiddleware']);
+Route::get('/hge_webhook' , ['middleware' => 'webhookMiddleware']);

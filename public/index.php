@@ -52,14 +52,6 @@ $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
   );
 
-// $id = $app['encrypter']->decrypt($_COOKIE[$app['config']['session']['cookie']]);
-
-// $session = $app['session']->$driver;
-// $session->setId($id);
-// $session->start();
-
-// $isAuthenticated = $app['auth']->check();
-
 $response->send();
 
 $kernel->terminate($request, $response);
